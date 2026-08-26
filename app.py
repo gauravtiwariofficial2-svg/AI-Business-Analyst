@@ -27,17 +27,28 @@ uploaded_file = st.file_uploader(
 )
 
 # Process uploaded file
+df = None
+
 if uploaded_file is not None:
+    try:
+        if uploaded_file.name.lower().endswith(".csv"):
+            df = pd.read_csv(uploaded_file)
 
-    # Read CSV
-    if uploaded_file.name.endswith(".csv"):
-        df = pd.read_csv(uploaded_file)
+        elif uploaded_file.name.lower().endswith((".xlsx", ".xls")):
+            df = pd.read_excel(uploaded_file, engine="openpyxl")
 
-    # Read Excel
-    else:
-        df = pd.read_excel(uploaded_file)
+        st.success("File uploaded successfully!")
 
-    st.success("File uploaded successfully!")
+    except Exception:
+        st.error(
+            "Unable to read this file. "
+            "Please upload a valid CSV or Excel file."
+        )
+        st.stop()
+
+if df is None:
+    st.info("Please upload a CSV or Excel file to begin the analysis.")
+    st.stop()
 
 # Dataset overview
 st.subheader("📊 Dataset Overview")
